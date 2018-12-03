@@ -190,7 +190,7 @@ def run_program():
     elif(type == 'xmas_scan'):
         filtered_pcap = filtered_pcap = pyshark.FileCapture('{}/{}'.format(sys.path[0], sys.argv[1]), display_filter='tcp');
         run_xmas_scan(filtered_pcap)
-    elif(type == 'halfopen'):
+    elif(type == 'halfopen_scan'):
         filtered_pcap = filtered_pcap = pyshark.FileCapture('{}/{}'.format(sys.path[0], sys.argv[1]), display_filter='tcp');
         run_half_open_scan(filtered_pcap)
     else:
