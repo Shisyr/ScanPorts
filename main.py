@@ -168,20 +168,29 @@ def run_half_open_scan(packets):
                 index = 0
 
 def run_program():
+    print("-----------------------------------------------------")
+    print("| ICMP ECHO: (input as \"icmpecho\")                |")
+    print("| NULL SCAN: (input as \"null_scan\")               |")
+    print("| UDP SCAN: (input as \"udp_scan\")                 |")
+    print("| XMAS SCAN: (input as \"xmas_scan\")               |")
+    print("| HALF OPEN SCAN: (input as \"halfopen_scan\")      |")
+    print("-----------------------------------------------------")
+    print("Input your type of scan: ", end='')
+    type = input()
     filtered_pcap = ''
-    if(sys.argv[1] == 'icmpecho.pcap'):
+    if(type == 'icmpecho'):
         filtered_pcap = pyshark.FileCapture('{}/{}'.format(sys.path[0], sys.argv[1]), display_filter='icmp');
         run_icmp_echo_scan(filtered_pcap)
-    elif(sys.argv[1] == 'null_scan.pcap'):
+    elif(type == 'null_scan'):
         filtered_pcap = filtered_pcap = pyshark.FileCapture('{}/{}'.format(sys.path[0], sys.argv[1]), display_filter='tcp');
         run_null_scan(filtered_pcap)
-    elif(sys.argv[1] == 'udp_scan.pcap'):
+    elif(type == 'udp_scan'):
         filtered_pcap = filtered_pcap = pyshark.FileCapture('{}/{}'.format(sys.path[0], sys.argv[1]), display_filter='icmp || udp');
         run_udp_scan(filtered_pcap)
-    elif(sys.argv[1] == 'xmas_scan.pcap'):
+    elif(type == 'xmas_scan'):
         filtered_pcap = filtered_pcap = pyshark.FileCapture('{}/{}'.format(sys.path[0], sys.argv[1]), display_filter='tcp');
         run_xmas_scan(filtered_pcap)
-    elif(sys.argv[1] == 'halfopen.pcap'):
+    elif(type == 'halfopen'):
         filtered_pcap = filtered_pcap = pyshark.FileCapture('{}/{}'.format(sys.path[0], sys.argv[1]), display_filter='tcp');
         run_half_open_scan(filtered_pcap)
     else:
