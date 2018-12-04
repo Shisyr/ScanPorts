@@ -2,7 +2,7 @@
 import pyshark
 import json
 import sys
-# pcap = pyshark.FileCapture('/Users/Mukhamed/Downloads/null_scan.pcap')
+import os
 
 def isFoundResponse(packet, packet2):
     isSimilarIP = packet.ip.src == packet2.ip.dst and packet.ip.dst == packet2.ip.src
@@ -19,7 +19,6 @@ def isFoundResponseICMP(packet, packet2):
     return isSimilarIP
 
 def run_null_scan(packets):
-    # print(packets.layers)
     pkt_request = '';
     result = []
     for pkt in packets:
@@ -35,22 +34,27 @@ def run_null_scan(packets):
                 pkt_request = pkt;
             else:
                 pkt_request = ''
-    print("NULL SCAN:")
-    print("The number of scanned packets: ", len(result));
-    index = 0
-    source_ip = ''
-    destination_ip = ''
-    for pack in result:
-        if(pack.ip.src != source_ip or pack.ip.dst != destination_ip):
-            source_ip = pack.ip.src
-            destination_ip = pack.ip.dst
-            print("IP Address: ", source_ip, " -> ", destination_ip);
-        print(pack.tcp.dstport, end=' ')
-        index += 1
-        if(index == 10):
-            print('')
-            index = 0
-
+    if(len(result) > 0):
+        print("NULL SCAN:")
+        print("The number of scanned packets: ", len(result));
+        index = 0
+        source_ip = ''
+        destination_ip = ''
+        for pack in result:
+            if(pack.ip.src != source_ip or pack.ip.dst != destination_ip):
+                source_ip = pack.ip.src
+                destination_ip = pack.ip.dst
+                print("IP Address: ", source_ip, " -> ", destination_ip);
+            print(pack.tcp.dstport, end=' ')
+            index += 1
+            if(index == 10):
+                print('')
+                index = 0
+        print('')
+        print('END---------------------------------------------------END')
+    else:
+        print("NULL SCAN:")
+        print("The number of scanned packets: ", len(result));
 
 def run_xmas_scan(packets):
     pkt_request = ''
@@ -68,28 +72,34 @@ def run_xmas_scan(packets):
                 pkt_request = pkt;
             else:
                 pkt_request = ''
-    print("XMAS SCAN")
-    print("The number of packets: ", len(result));
-    print('Scanned Ports: ')
-    index = 0;
-    source_ip = ''
-    destination_ip = ''
-    for pack in result:
-        if(pack.ip.src != source_ip or destination_ip != pack.ip.dst):
-            source_ip = pack.ip.src
-            destination_ip = pack.ip.dst
-            print("IP Address: ", source_ip, " -> ", destination_ip)
-        print(pack.tcp.dstport, end=' ')
-        index += 1
-        if(index == 10):
-            print('')
-            index = 0
+    if(len(result) > 0):
+        print("XMAS SCAN:")
+        print("The number of packets: ", len(result));
+        print('Scanned Ports: ')
+        index = 0;
+        source_ip = ''
+        destination_ip = ''
+        for pack in result:
+            if(pack.ip.src != source_ip or destination_ip != pack.ip.dst):
+                source_ip = pack.ip.src
+                destination_ip = pack.ip.dst
+                print("IP Address: ", source_ip, " -> ", destination_ip)
+            print(pack.tcp.dstport, end=' ')
+            index += 1
+            if(index == 10):
+                print('')
+                index = 0
+        print('')
+        print('END---------------------------------------------------END')
+    else:
+        print('XMAS SCAN:')
+        print('The Number of packets: ', len(result))
 
 def run_udp_scan(packets):
     udp = ''
     result = []
     for pkt in packets:
-        if('udp' in pkt and udp == ''):
+        if('udp' in pkt and not ('dns' in pkt) and udp == ''):
             udp = pkt
         elif('icmp' in pkt and udp != '' and not isFoundResponseUDP(pkt, udp)):
             result.append(udp)
@@ -97,23 +107,28 @@ def run_udp_scan(packets):
         elif(udp != ''):
             result.append(udp)
             udp = ''
-    print("UDP SCAN:")
-    print("The number of scanned packets: ", len(result));
-    index = 0
-    source_ip = ''
-    destination_ip = ''
-    for pack in result:
-        if(pack.ip.src != source_ip or pack.ip.dst != destination_ip):
-            source_ip = pack.ip.src;
-            destination_ip = pack.ip.dst;
-            print('')
-            print('--------------------')
-            print("IP Address: ", source_ip, " -> ", destination_ip)
-        print(pack.udp.dstport,  end=' ')
-        index += 1
-        if(index == 10):
-            print('')
-            index = 0
+    if(len(result) > 0):
+        print("UDP SCAN:")
+        print("The number of scanned packets: ", len(result));
+        index = 0
+        source_ip = ''
+        destination_ip = ''
+        for pack in result:
+            if(pack.ip.src != source_ip or pack.ip.dst != destination_ip):
+                source_ip = pack.ip.src;
+                destination_ip = pack.ip.dst;
+                print('')
+                print("IP Address: ", source_ip, " -> ", destination_ip)
+            print(pack.udp.dstport,  end=' ')
+            index += 1
+            if(index == 10):
+                print('')
+                index = 0
+        print('')
+        print('END---------------------------------------------------END')
+    else:
+        print('UDP SCAN:')
+        print("The number of scanned packets: ", len(result));
 
 def run_icmp_echo_scan(packets):
     pkt_request = ''
@@ -125,75 +140,74 @@ def run_icmp_echo_scan(packets):
             if(pkt.icmp.type == '0' and isFoundResponseICMP(pkt_request, pkt)):
                 result.append(pkt_request);
             pkt_request = ''
-
-    source_ip = ''
-    destination_ip = ''
-    isOutput = False
-    for pack in result:
-        if(pack.ip.src != source_ip or pack.ip.dst != destination_ip):
-            source_ip = pack.ip.src
-            destination_ip = pack.ip.dst
-            isOutput = False
-        if(not isOutput):
-            print('IP Address: ', pack.ip.src, ' -> ', pack.ip.dst)
-            isOutput = True
+    if(len(result) > 0):
+        source_ip = ''
+        destination_ip = ''
+        isOutput = False
+        print('ICMP ECHO')
+        print("The number of scanned packets: ", len(result));
+        for pack in result:
+            if(pack.ip.src != source_ip or pack.ip.dst != destination_ip):
+                source_ip = pack.ip.src
+                destination_ip = pack.ip.dst
+                isOutput = False
+            if(not isOutput):
+                print('IP Address: ', pack.ip.src, ' -> ', pack.ip.dst)
+                isOutput = True
+        print('')
+        print('END---------------------------------------------------END')
+    else:
+        print('ICMP ECHO')
+        print("The number of scanned packets: ", len(result));
 
 def run_half_open_scan(packets):
     tcp_client_packets = ''
     tcp_result = []
-    source_id = ''
-    destination_ip = ''
-    ip_addresses = []
     for pack in packets:
         if(pack.tcp.flags == '0x00000002'):
             tcp_client_packets = pack;
         else:
             if(tcp_client_packets != '' and pack.tcp.flags == '0x00000014' and isFoundResponse(tcp_client_packets, pack)):
                 tcp_result.append(pack);
-                if(source_id != pack.ip.src or destination_ip != pack.ip.dst):
-                    source_id = pack.ip.src
-                    destination_ip = pack.ip.dst
-                    ip_addresses.append(pack)
             tcp_client_packets = ''
-    print("The number of scans: ", len(tcp_result));
-    print("All Half Open Scan Ports:")
-    for address in ip_addresses:
-        print("IP Address: ", address.ip.src, " -> ", address.ip.dst)
+    if(len(tcp_result) > 0):
+        source_ip = ''
+        destination_ip = ''
         index = 0
+        print('HALF OPEN SCAN:')
+        print("The number of scans: ", len(tcp_result));
+        print("All Half Open Scan Ports:")
         for pack in tcp_result:
+            if(source_ip != pack.ip.src or destination_ip != pack.ip.dst):
+                source_ip = pack.ip.src;
+                destination_ip = pack.ip.dst;
+                print("IP Address: ", source_ip, " -> ", destination_ip)
             print(pack.tcp.port, end=' ')
             index += 1
             if(index == 10):
                 print('')
                 index = 0
+        print('')
+        print('END---------------------------------------------------END')
+    else:
+        print('HALF OPEN SCAN:')
+        print("The number of scans: ", len(tcp_result));
 
 def run_program():
-    print("-----------------------------------------------------")
-    print("| ICMP ECHO: (input as \"icmpecho\")                |")
-    print("| NULL SCAN: (input as \"null_scan\")               |")
-    print("| UDP SCAN: (input as \"udp_scan\")                 |")
-    print("| XMAS SCAN: (input as \"xmas_scan\")               |")
-    print("| HALF OPEN SCAN: (input as \"halfopen_scan\")      |")
-    print("-----------------------------------------------------")
-    print("Input your type of scan: ", end='')
-    type = input()
-    filtered_pcap = ''
-    if(type == 'icmpecho'):
-        filtered_pcap = pyshark.FileCapture('{}/{}'.format(sys.path[0], sys.argv[1]), display_filter='icmp');
-        run_icmp_echo_scan(filtered_pcap)
-    elif(type == 'null_scan'):
-        filtered_pcap = filtered_pcap = pyshark.FileCapture('{}/{}'.format(sys.path[0], sys.argv[1]), display_filter='tcp');
-        run_null_scan(filtered_pcap)
-    elif(type == 'udp_scan'):
-        filtered_pcap = filtered_pcap = pyshark.FileCapture('{}/{}'.format(sys.path[0], sys.argv[1]), display_filter='icmp || udp');
-        run_udp_scan(filtered_pcap)
-    elif(type == 'xmas_scan'):
-        filtered_pcap = filtered_pcap = pyshark.FileCapture('{}/{}'.format(sys.path[0], sys.argv[1]), display_filter='tcp');
-        run_xmas_scan(filtered_pcap)
-    elif(type == 'halfopen_scan'):
-        filtered_pcap = filtered_pcap = pyshark.FileCapture('{}/{}'.format(sys.path[0], sys.argv[1]), display_filter='tcp');
-        run_half_open_scan(filtered_pcap)
-    else:
-        print('The directory does not exist such file.')
+    filtered_pcap = pyshark.FileCapture('{}/{}'.format(os.getcwd(), sys.argv[1]), display_filter='icmp');
+    run_icmp_echo_scan(filtered_pcap)
+    filtered_pcap.close()
+    filtered_pcap = filtered_pcap = pyshark.FileCapture('{}/{}'.format(os.getcwd(), sys.argv[1]), display_filter='tcp');
+    run_null_scan(filtered_pcap)
+    filtered_pcap.close()
+    filtered_pcap = filtered_pcap = pyshark.FileCapture('{}/{}'.format(os.getcwd(), sys.argv[1]));
+    run_udp_scan(filtered_pcap)
+    filtered_pcap.close()
+    filtered_pcap = filtered_pcap = pyshark.FileCapture('{}/{}'.format(os.getcwd(), sys.argv[1]), display_filter='tcp');
+    run_xmas_scan(filtered_pcap)
+    filtered_pcap.close()
+    filtered_pcap = filtered_pcap = pyshark.FileCapture('{}/{}'.format(os.getcwd(), sys.argv[1]), display_filter='tcp');
+    run_half_open_scan(filtered_pcap)
+    filtered_pcap.close()
 
 run_program();
